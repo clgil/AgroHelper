@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgroHelper Web</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@tensorflow/tfjs@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen">
+  <div id="app" class="flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">AgroHelper Web</h1>
+              <p class="text-sm text-gray-500">Asistencia técnica para agricultores cubanos</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <button id="offline-status" class="flex items-center space-x-1 text-sm text-gray-500">
+              <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span>Online</span>
+            </button>
+            <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Hero Section -->
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          Ayuda Técnica para Agricultores Cubanos
+        </h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          Identifica plagas, accede a soluciones caseras y obtén asesoría técnica, incluso sin conexión a internet.
+          Diseńado específicamente para las condiciones agrícolas de Cuba.
+        </p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="mb-8 border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8">
+          <button class="tab-button active text-green-600 border-green-500 font-medium pb-4 px-1 border-b-2" data-tab="identification">
+            Identificación de Plagas
+          </button>
+          <button class="tab-button text-gray-500 hover:text-gray-700 font-medium pb-4 px-1 border-b-2 border-transparent hover:border-gray-300" data-tab="knowledge">
+            Base de Conocimiento
+          </button>
+          <button class="tab-button text-gray-500 hover:text-gray-700 font-medium pb-4 px-1 border-b-2 border-transparent hover:border-gray-300" data-tab="weather">
+            Alertas Meteorológicas
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content active" id="identification-tab">
+        <!-- Image Upload Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">Identificación por Imagen</h3>
+          <p class="text-gray-600 mb-6">
+            Sube una foto de tu cultivo afectado y nuestro sistema identificará posibles plagas con inteligencia artificial.
+          </p>
+          
+          <!-- Drag and Drop Area -->
+          <div id="drag-area" class="drag-area mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+            </svg>
+            <p class="text-gray-500 mb-2">Arrastra y suelta una imagen aquí</p>
+            <p class="text-sm text-gray-400">o</p>
+            <label class="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 cursor-pointer">
+              Seleccionar archivo
+              <input type="file" id="file-input" accept="image/*" class="sr-only" />
+            </label>
+          </div>
+
+          <!-- Preview -->
+          <div id="image-preview" class="hidden mb-6">
+            <img id="preview-img" class="max-h-64 mx-auto rounded-lg shadow" alt="Vista previa" />
+            <button id="clear-preview" class="mt-2 text-sm text-red-600 hover:text-red-800">Eliminar imagen</button>
+          </div>
+
+          <!-- Analyze Button -->
+          <button id="analyze-btn" disabled class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            Analizar Imagen
+          </button>
+        </div>
+
+        <!-- Text Description Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">Identificación por Descripción</h3>
+          <p class="text-gray-600 mb-4">
+            Describe los síntomas que observas en tus cultivos y te ayudaremos a identificar posibles problemas.
+          </p>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Cultivo afectado</label>
+              <select id="crop-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <option value="">Selecciona un cultivo</option>
+                <option value="maiz">Maíz</option>
+                <option value="arroz">Arroz</option>
+                <option value="frijoles">Frijoles</option>
+                <option value="tomate">Tomate</option>
+                <option value="papa">Papa</option>
+                <option value="yuca">Yuca</option>
+                <option value="platanos">Plátanos</option>
+                <option value="cafe">Café</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Síntomas observados</label>
+              <textarea id="symptoms-input" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Describe los síntomas... (color de las hojas, manchas, insectos visibles, etc.)"></textarea>
+            </div>
+            
+            <button id="describe-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+              Identificar Problema
+            </button>
+          </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden mt-8">
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6">Resultados de Identificación</h3>
+            
+            <div id="results-container" class="space-y-4">
+              <!-- Results will be inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Knowledge Base Tab -->
+      <div class="tab-content hidden" id="knowledge-tab">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Plague Cards will be inserted here -->
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.117 7.297C6.04 6.345 6 5.76 6 5.167C6 3.417 7.417 2 9.167 2h5.666C16.583 2 18 3.417 18 5.167c0 .6-.04.185-.063 1.137M6.117 7.297H4.833c-.967 0-1.75.783-1.75 1.75v8.166c0 .967.783 1.75 1.75 1.75h14.334c.967 0 1.75-.783 1.75-1.75v-8.166c0-.967-.783-1.75-1.75-1.75H17.8m-11.683 0v-1.083c0-.583.483-1.083 1.083-1.083h9.6c.6 0 1.083.5 1.083 1.083v1.083m-11.766 0v5.417m5.883-5.417v5.417" />
+                </svg>
+              </div>
+              <h3 class="ml-3 text-lg font-semibold text-gray-900">Gusano cogollero</h3>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Spodoptera frugiperda</p>
+            <p class="text-gray-700 mb-4">Plaga común en maíz que ataca las hojas jóvenes y el cogollo.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Maíz</span>
+              <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Alta severidad</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+              </div>
+              <h3 class="ml-3 text-lg font-semibold text-gray-900">Mosca blanca</h3>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Bemisia tabaci</p>
+            <p class="text-gray-700 mb-4">Insecto pequeńo que afecta múltiples cultivos transmitiendo virus.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Tomate</span>
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Papa</span>
+              <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Media severidad</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+              <h3 class="ml-3 text-lg font-semibold text-gray-900">Roya del café</h3>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Hemileia vastatrix</p>
+            <p class="text-gray-700 mb-4">Hongo que afecta las hojas del café reduciendo la producción.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Café</span>
+              <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Alta severidad</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="ml-3 text-lg font-semibold text-gray-900">Pulgón</h3>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Aphidoidea</p>
+            <p class="text-gray-700 mb-4">Insecto chupador que afecta múltiples cultivos y transmite virus.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Frijoles</span>
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Tomate</span>
+              <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Media severidad</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <h3 class="ml-3 text-lg font-semibold text-gray-900">Nemátodos</h3>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Nematoda</p>
+            <p class="text-gray-700 mb-4">Gusanos microscópicos que afectan las raíces de las plantas.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Yuca</span>
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Plátano</span>
+              <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Alta severidad</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center mb-4">
+              <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h3 class="ml-3 text-lg font-semibold text-gray-900">Taladro del arroz</h3>
+            </div>
+            <p class="text-gray-600 text-sm mb-4">Chilo plejadellus</p>
+            <p class="text-gray-700 mb-4">Insecto que perfora el tallo del arroz causando su muerte.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Arroz</span>
+              <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Alta severidad</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather Alerts Tab -->
+      <div class="tab-content hidden" id="weather-tab">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+              <h3 class="text-xl font-semibold text-gray-900 mb-6">Pronóstico del Tiempo</h3>
+              
+              <!-- Weather Forecast -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                  <div class="text-2xl mb-2">???</div>
+                  <div class="font-semibold text-gray-900">Hoy</div>
+                  <div class="text-gray-600 text-sm">Parcialmente nublado</div>
+                  <div class="text-lg font-bold text-blue-600">32°C</div>
+                </div>
+                
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                  <div class="text-2xl mb-2">?</div>
+                  <div class="font-semibold text-gray-900">Mańana</div>
+                  <div class="text-gray-600 text-sm">Mayormente soleado</div>
+                  <div class="text-lg font-bold text-blue-600">34°C</div>
+                </div>
+                
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                  <div class="text-2xl mb-2">??</div>
+                  <div class="font-semibold text-gray-900">Pasado</div>
+                  <div class="text-gray-600 text-sm">Tormentas</div>
+                  <div class="text-lg font-bold text-blue-600">30°C</div>
+                </div>
+              </div>
+
+              <!-- Weather Chart Placeholder -->
+              <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                <div class="text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <p class="text-gray-500">Gráfico de temperatura y precipitación</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+              <h3 class="text-xl font-semibold text-gray-900 mb-6">Alertas Actuales</h3>
+              
+              <div class="space-y-4">
+                <div class="p-4 border-l-4 border-yellow-400 bg-yellow-50 rounded-r-lg">
+                  <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h4 class="text-sm font-medium text-yellow-800">Advertencia de calor extremo</h4>
+                      <p class="text-sm text-yellow-700 mt-1">Temperaturas superiores a 35°C esperadas en los próximos días. Proteja sus cultivos del sol intenso.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-4 border-l-4 border-blue-400 bg-blue-50 rounded-r-lg">
+                  <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.292 4.001 4.001 0 00-.229 5.708z" />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h4 class="text-sm font-medium text-blue-800">Lluvias pronosticadas</h4>
+                      <p class="text-sm text-blue-700 mt-1">Precipitaciones esperadas en zonas occidentales. Considere retrasar siembra si aplica.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-4 border-l-4 border-green-400 bg-green-50 rounded-r-lg">
+                  <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h4 class="text-sm font-medium text-green-800">Condiciones óptimas</h4>
+                      <p class="text-sm text-green-700 mt-1">Humedad adecuada para aplicación de soluciones biológicas en cultivos de hoja.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">AgroHelper Web</h3>
+            <p class="text-gray-600 text-sm">
+              Aplicación desarrollada para brindar asistencia técnica a agricultores cubanos, adaptada a las condiciones locales y funcionando incluso sin conexión.
+            </p>
+          </div>
+          
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Recursos</h3>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 hover:text-green-600 text-sm">Soluciones caseras</a></li>
+              <li><a href="#" class="text-gray-600 hover:text-green-600 text-sm">Calendario de siembra</a></li>
+              <li><a href="#" class="text-gray-600 hover:text-green-600 text-sm">Preparación de suelo</a></li>
+              <li><a href="#" class="text-gray-600 hover:text-green-600 text-sm">Rotación de cultivos</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Soporte</h3>
+            <ul class="space-y-2">
+              <li class="text-gray-600 text-sm">Teléfono: +53 XXX-XXXX</li>
+              <li class="text-gray-600 text-sm">Email: soporte@agrohelper.cu</li>
+              <li class="text-gray-600 text-sm">Ministerio de Agricultura</li>
+              <li class="text-gray-600 text-sm">Instituto de Investigaciones</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-gray-200 mt-8 pt-8 text-center">
+          <p class="text-gray-500 text-sm">
+            © 2024 AgroHelper Web. Desarrollado para el sector agrícola cubano.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
