@@ -1,0 +1,10 @@
+0: Gusano cogollero
+1: Mosca blanca
+2: Roya del café
+3: Pulgón
+4: Nemátodos
+5: Taladro del arroz
+6: Picudo del tabaco
+7: Moho gris
+8: Araña roja
+9: Minador de hojas

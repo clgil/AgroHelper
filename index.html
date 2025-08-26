@@ -50,7 +50,7 @@
         </h2>
         <p class="text-lg text-gray-600 max-w-3xl mx-auto">
           Identifica plagas, accede a soluciones caseras y obtén asesoría técnica, incluso sin conexión a internet.
-          Diseńado específicamente para las condiciones agrícolas de Cuba.
+          Diseñado específicamente para las condiciones agrícolas de Cuba.
         </p>
       </div>
 
@@ -271,12 +271,35 @@
               <!-- Weather Forecast -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <div class="text-center p-4 bg-blue-50 rounded-lg">
-                  <div class="text-2xl mb-2">???</div>
+                  <div class="text-2xl mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.292 4.001 4.001 0 00-.229 5.708z" />
+                    </svg>
+                  </div>
                   <div class="font-semibold text-gray-900">Hoy</div>
                   <div class="text-gray-600 text-sm">Parcialmente nublado</div>
-                  <div class="text-lg font-bold text-blue-600">32°C</div>
-                </div>
-                
+                  <div class="text-2xl mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <circle cx="12" cy="12" r="5" fill="currentColor"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.364-7.364l-1.414 1.414M6.05 17.95l-1.414 1.414m0-13.828l1.414 1.414M17.95 17.95l1.414 1.414"/>
+                  <div class="text-2xl mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <circle cx="12" cy="12" r="5" fill="currentColor"/>
+                      <g stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="4"/>
+                        <line x1="12" y1="20" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/>
+                        <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="4" y2="12"/>
+                        <line x1="20" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/>
+                        <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <div class="font-semibold text-gray-900">Mańana</div>
+                  <div class="text-gray-600 text-sm">Mayormente soleado</div>
+                  <div class="text-lg font-bold text-blue-600">34°C</div>
                 <div class="text-center p-4 bg-blue-50 rounded-lg">
                   <div class="text-2xl mb-2">?</div>
                   <div class="font-semibold text-gray-900">Mańana</div>
@@ -285,7 +308,12 @@
                 </div>
                 
                 <div class="text-center p-4 bg-blue-50 rounded-lg">
-                  <div class="text-2xl mb-2">??</div>
+                  <div class="text-2xl mb-2"></div>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 13v-1a4 4 0 00-8 0v1a4 4 0 008 0zm-4 6a6 6 0 100-12 6 6 0 000 12z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17h8" />
+                  </svg>
+                  </div>
                   <div class="font-semibold text-gray-900">Pasado</div>
                   <div class="text-gray-600 text-sm">Tormentas</div>
                   <div class="text-lg font-bold text-blue-600">30°C</div>
@@ -381,10 +409,10 @@
           <div>
             <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Soporte</h3>
             <ul class="space-y-2">
-              <li class="text-gray-600 text-sm">Teléfono: +53 XXX-XXXX</li>
-              <li class="text-gray-600 text-sm">Email: soporte@agrohelper.cu</li>
+              <li class="text-gray-600 text-sm">Teléfono de soporte: <a href="tel:+5350625350" class="text-green-600 hover:underline">+53 50625350</a></li>
+              <li class="text-gray-600 text-sm">Email: <a href="mailto:agrohelper@movisoftvc.com" class="hover:text-green-600">agrohelper@movisoftvc.com</a></li>
               <li class="text-gray-600 text-sm">Ministerio de Agricultura</li>
-              <li class="text-gray-600 text-sm">Instituto de Investigaciones</li>
+              <li class="text-gray-600 text-sm">Instituto de Investigaciones Agropecuarias</li>
             </ul>
           </div>
         </div>
@@ -397,7 +425,7 @@
       </div>
     </footer>
   </div>
-
-  <script src="js/app.js"></script>
+  <script src="js/tf-model.js" defer></script>
+  <script src="js/app.js" defer></script>
 </body>
 </html>

@@ -96,50 +96,186 @@ clearPreview.addEventListener('click', function() {
 });
 
 // Mock AI analysis
-analyzeBtn.addEventListener('click', function() {
-  // Show loading state
-  analyzeBtn.disabled = true;
-  analyzeBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-  
-  // Simulate API call
-  setTimeout(() => {
-    // Mock results
-    const results = [
-      {
-        plague: 'Gusano cogollero',
-        scientific: 'Spodoptera frugiperda',
-        confidence: 87,
-        description: 'Plaga común en maíz que ataca las hojas jóvenes y el cogollo. Se observan dańos en forma de mordeduras irregulares.',
-        solutions: [
-          'Aplicar solución de ceniza de tabaco (1kg por 10L de agua)',
-          'Introducir enemigos naturales como trichogramma',
-          'Rotar cultivos con leguminosas'
-        ],
-        severity: 'alta'
-      },
-      {
-        plague: 'Pulgón',
-        scientific: 'Aphidoidea',
-        confidence: 63,
-        description: 'Insecto chupador que afecta múltiples cultivos y transmite virus. Se observan colonias en brotes tiernos.',
-        solutions: [
-          'Aplicar jabón potásico (200g por 10L de agua)',
-          'Usar extracto de ajo y cebolla',
-          'Fomentar la presencia de mariquitas'
-        ],
-        severity: 'media'
-      }
-    ];
+analyzeBtn.addEventListener('click', async function() {
+    // Show loading state
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
     
-    // Display results
-    displayResults(results);
-    
-    // Reset button
-    analyzeBtn.disabled = false;
-    analyzeBtn.textContent = 'Analizar Imagen';
-  }, 2000);
+    try {
+        // Verificar si el modelo está cargado
+        if (!window.plagueDetectionModel.isModelLoaded) {
+            const loaded = await window.plagueDetectionModel.loadModel();
+            if (!loaded) {
+                throw new Error('No se pudo cargar el modelo de IA');
+            }
+        }
+        
+        // Obtener la imagen de vista previa
+        const imageElement = document.getElementById('preview-img');
+        
+        // Realizar la predicción
+        const predictions = await window.plagueDetectionModel.predict(imageElement);
+        
+        // Formatear resultados para displayResults
+        const results = predictions.map(prediction => {
+            return {
+                plague: prediction.label,
+                scientific: obtenerNombreCientifico(prediction.label),
+                confidence: prediction.confidence,
+                description: obtenerDescripcion(prediction.label),
+                solutions: obtenerSoluciones(prediction.label),
+                severity: obtenerSeveridad(prediction.label)
+            };
+        });
+        
+        // Mostrar resultados
+        displayResults(results);
+        
+    } catch (error) {
+        console.error('Error al analizar la imagen:', error);
+        
+        // Fallback a resultados mock si hay error
+        const mockResults = [
+            {
+                plague: 'Gusano cogollero',
+                scientific: 'Spodoptera frugiperda',
+                confidence: 87,
+                description: 'Plaga común en maíz que ataca las hojas jóvenes y el cogollo. Se observan daños en forma de mordeduras irregulares.',
+                solutions: [
+                    'Aplicar solución de ceniza de tabaco (1kg por 10L de agua)',
+                    'Introducir enemigos naturales como trichogramma',
+                    'Rotar cultivos con leguminosas'
+                ],
+                severity: 'alta'
+            }
+        ];
+        
+        displayResults(mockResults);
+        
+        // Mostrar mensaje de error
+        alert('Error en el análisis. Mostrando resultados de ejemplo. Error: ' + error.message);
+    } finally {
+        // Reset button
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = 'Analizar Imagen';
+    }
 });
 
+function obtenerNombreCientifico(plagueName) {
+    const scientificNames = {
+        'Gusano cogollero': 'Spodoptera frugiperda',
+        'Mosca blanca': 'Bemisia tabaci',
+        'Roya del café': 'Hemileia vastatrix',
+        'Pulgón': 'Aphidoidea',
+        'Nemátodos': 'Nematoda',
+        'Taladro del arroz': 'Chilo plejadellus',
+        'Picudo del tabaco': 'Anthonomus grandis',
+        'Moho gris': 'Botrytis cinerea'
+    };
+    return scientificNames[plagueName] || 'Nombre científico no disponible';
+}
+
+function obtenerDescripcion(plagueName) {
+    const descriptions = {
+        'Gusano cogollero': 'Plaga común en maíz que ataca las hojas jóvenes y el cogollo. Se observan daños en forma de mordeduras irregulares.',
+        'Mosca blanca': 'Insecto pequeño que afecta múltiples cultivos transmitiendo virus. Se observan colonias en el envés de las hojas.',
+        'Roya del café': 'Hongo que afecta las hojas del café reduciendo la producción. Manchas anaranjadas en el envés de las hojas.',
+        'Pulgón': 'Insecto chupador que afecta múltiples cultivos y transmite virus. Se observan colonias en brotes tiernos.',
+        'Nemátodos': 'Gusanos microscópicos que afectan las raíces de las plantas. Plantas con crecimiento raquítico y amarillamiento.',
+        'Taladro del arroz': 'Insecto que perfora el tallo del arroz causando su muerte. Tallos con orificios y material fecal.',
+        'Picudo del tabaco': 'Escarabajo que afecta los botones florales del tabaco. Botones florales perforados y dañados.',
+        'Moho gris': 'Hongo que afecta flores y frutos en condiciones de humedad. Apariencia de moho grisáceo en tejidos afectados.'
+    };
+    return descriptions[plagueName] || 'Descripción no disponible para esta plaga.';
+}
+
+function obtenerSoluciones(plagueName) {
+    const solutions = {
+        'Gusano cogollero': [
+            'Aplicar solución de ceniza de tabaco (1kg por 10L de agua)',
+            'Introducir enemigos naturales como trichogramma',
+            'Rotar cultivos con leguminosas'
+        ],
+        'Mosca blanca': [
+            'Usar trampas amarillas adhesivas',
+            'Aplicar jabón potásico (20g por litro de agua)',
+            'Introducir parasitoides como Encarsia formosa'
+        ],
+        'Roya del café': [
+            'Podar para mejorar la ventilación',
+            'Aplicar caldo bordelés (1%) preventivamente',
+            'Usar variedades resistentes'
+        ],
+        'Pulgón': [
+            'Aplicar jabón potásico (200g por 10L de agua)',
+            'Usar extracto de ajo y cebolla',
+            'Fomentar la presencia de mariquitas'
+        ],
+        'Nemátodos': [
+            'Solarización del suelo (cubrir con plástico transparente)',
+            'Rotación con cultivos no hospederos como maíz',
+            'Aplicar compost para mejorar salud del suelo'
+        ],
+        'Taladro del arroz': [
+            'Eliminar restos de cosecha anteriores',
+            'Mantener nivel de agua adecuado en el cultivo',
+            'Usar trampas de feromonas'
+        ],
+        'Picudo del tabaco': [
+            'Recolección manual de adultos',
+            'Eliminar botones florales afectados',
+            'Rotación con cultivos no hospederos'
+        ],
+        'Moho gris': [
+            'Reducir densidad de plantación para mejorar ventilación',
+            'Evitar riego por aspersión en horas de la tarde',
+            'Aplicar bicarbonato de sodio (5g por litro)'
+        ]
+    };
+    return solutions[plagueName] || [
+        'Inspeccionar regularmente las plantas en horas de la mañana',
+        'Aplicar soluciones biológicas cada 7-10 días',
+        'Eliminar plantas muy afectadas para evitar propagación'
+    ];
+}
+
+function obtenerSeveridad(plagueName) {
+    const severityLevels = {
+        'Gusano cogollero': 'alta',
+        'Mosca blanca': 'media',
+        'Roya del café': 'alta',
+        'Pulgón': 'media',
+        'Nemátodos': 'alta',
+        'Taladro del arroz': 'alta',
+        'Picudo del tabaco': 'media',
+        'Moho gris': 'media'
+    };
+    return severityLevels[plagueName] || 'media';
+}
+
+// Inicializar TensorFlow.js al cargar la página
+document.addEventListener('DOMContentLoaded', async () => {
+    // ... código existente
+    
+    // Inicializar TensorFlow.js
+    try {
+        await tf.ready();
+        console.log('TensorFlow.js está listo');
+        
+        // Cargar el modelo en segundo plano
+        setTimeout(() => {
+            window.plagueDetectionModel.loadModel().then(success => {
+                if (success) {
+                    console.log('Modelo de plagas cargado exitosamente');
+                } else {
+                    console.warn('No se pudo cargar el modelo de plagas');
+                }
+            });
+        }, 1000);
+    } catch (error) {
+        console.error('Error inicializando TensorFlow.js:', error);
+    }
+});
 function displayResults(results) {
   resultsContainer.innerHTML = '';
   
